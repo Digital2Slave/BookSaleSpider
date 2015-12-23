@@ -1,7 +1,7 @@
-#!~/.virtualenvs/cv/bin/python 
+#!~/.virtualenvs/cv/bin/python
 #-*- encoding:utf-8 -*-
-import sys 
-reload(sys) 
+import sys
+reload(sys)
 sys.setdefaultencoding('utf-8') #'utf8'
 
 import socket, time, requests
@@ -9,7 +9,7 @@ import socket, time, requests
 import urllib2
 from urllib2 import Request, urlopen, URLError, HTTPError
 
-import randomProxy, randomUserAgent 
+import randomProxy, randomUserAgent
 from lxml import etree
 # BeautifulSoup抓取网页中的中文乱码
 import bs4
@@ -38,22 +38,22 @@ def urllib2Url(url):
     """ urllib2 """
     if (url==None) or (url==""):
         raise ("url error")
-    
+
     # Set Proxy
     enable_proxy = False
-    Proxy  = randomProxy.getRandomProxy('/users/tianzhaixing/Spider/4BookSaleSpider/kit/proxy_list.txt')
+    Proxy  = randomProxy.getRandomProxy('./proxy_list.txt')
     proxy_handler = urllib2.ProxyHandler({"http":Proxy})
     null_proxy_handler = urllib2.ProxyHandler({})
     if enable_proxy:
         opener = urllib2.build_opener(proxy_handler)
     else:
         opener = urllib2.build_opener(null_proxy_handler)
-    
+
     # Set User_agent
     User_agent = randomUserAgent.getRandomUseragent(None)
     headers    = {'Use-Agent':User_agent}
     req        = Request(url, headers=headers)
-    
+
     # Check open function
     try:
         response = opener.open(req)
@@ -64,7 +64,7 @@ def urllib2Url(url):
         #print e.code, url
         return urllib2Url(url)
 
-    # Return 
+    # Return
     if (response.getcode()==200):
         return response.read()
     else:
@@ -75,7 +75,7 @@ def getEtreeFromUrl(url):
     """
     To get Selector-like from URL.
     """
-    
+
     # 测试中文乱码
     #page = bs4.BeautifulSoup(page, from_encoding='GB18030')
 
@@ -90,10 +90,9 @@ def getEtreeFromUrl(url):
 
 
 if (__name__=='__main__'):
-    
+
     url = 'http://www.baidu.com'
 
     sel,page = getEtreeFromUrl(url)
 
     print sel.xpath('//a/@href')
-
