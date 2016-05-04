@@ -1,4 +1,4 @@
-#!/usr/local/bin/python 
+#!/usr/local/bin/python
 #-*- encoding:utf-8 -*-
 
 import urllib2
@@ -20,8 +20,7 @@ def requestsUrl(url):
     """ requests """
     if (url==None) or (url==""):
         raise ("url error")
-    
-    
+
     # requests
     try:
         req = requests.get(url)
@@ -39,13 +38,13 @@ def requestsUrl(url):
     if (req.status_code==200):
         return req.text
     elif (req.status_code==404):
-        return None 
+        return None
     else:
         return requestsUrl(url)
 
 
 def DangdangBookParse(bookurl):
-    
+
     texturl = requestsUrl(bookurl)
 
     if (texturl==None):
@@ -75,7 +74,7 @@ def DangdangBookParse(bookurl):
             for s in classify3:
                 s = s + '>'
                 s3 += s
-        
+
         # return
         if (classify3 != []):
             return [isbn, s1, s2, s3]
@@ -104,39 +103,39 @@ def DangdangBookSale(date, url):
     for i in xrange(1,26,1):
         pageurl = url[:-1] + str(i)
         tree, pagetext = etreeFromUrl.getEtreeFromUrl(pageurl)
-        
+
         #single book url. Note that: bookurl may not useful.
         sels =  tree.xpath('//ul[@class="bang_list clearfix bang_list_mode"]/li')
-       
+
         for sel in sels:
-            
+
             bookdict = OrderedDict()
 
             bookurl = sel.xpath('div[@class="pic"]/a/@href')                           # 书籍网址
-            
+
             imgurls  = sel.xpath('div[@class="pic"]/a/img/@src')                       # 书籍封面(small)
             strs     = checkListResult(imgurls)
             imgurl   = ''
             if ( strs != ''):
-                imgurl = strs[:-5] + 'u_1.jpg'                                         # 书籍封面(big) 
+                imgurl = strs[:-5] + 'u_1.jpg'                                         # 书籍封面(big)
 
             title   = sel.xpath('div[@class="name"]/a/text()')                         # 书籍名称
-            
+
             star1   = sel.xpath('div[@class="star"]/a/text()')                         # 评论条数目
             star2   = sel.xpath('div[@class="star"]/span/text()')                      # 百分比推荐
-            
+
             author  = sel.xpath('div[@class="publisher_info"]/a[1]/@title')            # 作者
-            
+
             pubdate = sel.xpath('div[@class="publisher_info"]/span/text()')            # 出版日期
             puber   = sel.xpath('div[@class="publisher_info"]/a/text()')               # 出版社
-            
+
             price   = sel.xpath('div[@class="price"]/p/span/text()')                   # 价格
             price_e = sel.xpath('div[@class="price"]/p[@class="price_e"]/span/text()') # 电子书价格
-            
+
             # !< get ISBN for each book. isbn str, classify strs
             isbnclassify = DangdangBookParse(checkListResult(bookurl))
             isbn, classify = isbnclassify[0], isbnclassify[1:]
-            bookdict['isbn']    = isbn 
+            bookdict['isbn']    = isbn
             bookdict['title']   = checkListResult(title)
             bookdict['star']    = checkListResult(star1) + checkListResult(star2)
             bookdict['author']  = checkListResult(author)
@@ -147,14 +146,14 @@ def DangdangBookSale(date, url):
             bookdict['classify']= classify
             bookdict['imgurl']  = imgurl
             bookdict['bookurl'] = checkListResult(bookurl)
-            
+
             #for (key, val) in bookdict.items():
-            #    print key, val 
+            #    print key, val
             #print '\n'
             books.append(bookdict)
-    
+
     booksdict[date] = books
-    
+
     return booksdict
 
 
@@ -163,10 +162,10 @@ if (__name__=='__main__'):
 
     yearurl = "http://bang.dangdang.com/books/bestsellers/01.00.00.00.00.00-year-2011-0-1-1"
     monthurl = "http://bang.dangdang.com/books/bestsellers/01.00.00.00.00.00-month-2015-1-1-1"
-    
+
     year = yearurl[-10:-6]
     yearbooksdict = DangdangBookSale(year, yearurl)
     #print yearbooksdict
     #print len(yearbooksdict[year])
-    
+
 
